@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mario Kart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="custom.css" rel="stylesheet">
+    <link rel="stylesheet" href="node_modules/bootstrap-icons/font/bootstrap-icons.css">
+    <style>
+        .card-select-border { border: 3px solid #0d6efd; }
+        .card-img-top { height: 160px; object-fit: contain; background: #f8f9fa; }
+        #race-log { min-height: 200px; max-height: 320px; overflow-y: auto; background: #f8f9fa; }
+        #race-log .log-entry { margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div>
+        <img src="assets/track.gif" width="100%">
+    </div>
+    <div>
+        <img id="flag" src="assets/flag.png">
+    </div>
+    <div class="container mt-3">
+        <h1>Mario Kart</h1>
+        <h2>Escolha seu personagem</h2>
+        <div id="cards-grid" class="row mt-3"></div>
+
+        <div id="selection" class="mt-3 d-flex gap-3 align-items-center">
+            <div>
+                <h5>Jogador 1</h5>
+                <div id="player1-box" class="border p-2" style="width:140px;height:100px">Nenhum</div>
+            </div>
+            <div>
+                <h5>Jogador 2</h5>
+                <div id="player2-box" class="border p-2" style="width:140px;height:100px">Nenhum</div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <button id="start-btn" class="btn btn-success" disabled>Iniciar Corrida</button>
+        </div>
+
+        <div id="race-panel" class="mt-3" style="display:none;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Resultados da Corrida</h5>
+                    <div id="race-log" class="p-2"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        const grid = document.getElementById('cards-grid');
+        const player1Box = document.getElementById('player1-box');
+        const player2Box = document.getElementById('player2-box');
+        const startBtn = document.getElementById('start-btn');
+        const raceLog = document.getElementById('race-log');
+        let selected = [];
+
+        function appendRaceLog(message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = message;
+            raceLog.appendChild(entry);
+            raceLog.scrollTop = raceLog.scrollHeight;
+        }
+
+        function clearRaceLog() {
+            raceLog.innerHTML = '';
+        }
+
+        window.onRaceUpdate = appendRaceLog;
+
+        function renderCards() {
+            grid.innerHTML = '';
+            personagens.forEach((ch, idx) => {
+                const col = document.createElement('div');
+                col.className = 'col-12 col-sm-6 col-md-4 mb-3';
+                col.innerHTML = `
+                    <div class="card h-100" data-idx="${idx}">
+                        <img src="${ch.LOOK}" class="card-img-top" alt="${ch.NOME}" onerror="this.src='assets/placeholder.png'">
+                        <div class="card-body">
+                            <h5 class="card-title">${ch.NOME}</h5>
+                            <p class="card-text">Velocidade: ${ch.VELOCIDADE} • Manobrabilidade: ${ch.MANOBRABILIDADE} • Poder: ${ch.PODER}</p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <button class="btn btn-primary choose-btn">Escolher</button>
+                        </div>
+                    </div>`;
+                grid.appendChild(col);
+            });
+
+            document.querySelectorAll('.choose-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const card = e.target.closest('.card');
+                    const idx = Number(card.dataset.idx);
+                    chooseCharacter(idx, card, e.target);
+                });
+            });
+        }
+
+        function updateSelectionBoxes() {
+            player1Box.innerHTML = selected[0] ? `<img src="${selected[0].LOOK}" style="height:64px"> <div>${selected[0].NOME}</div>` : 'Nenhum';
+            player2Box.innerHTML = selected[1] ? `<img src="${selected[1].LOOK}" style="height:64px"> <div>${selected[1].NOME}</div>` : 'Nenhum';
+            startBtn.disabled = selected.length < 2;
+        }
+
+        function chooseCharacter(idx, cardEl, btnEl) {
+            const ch = personagens[idx];
+            if (selected.find(s => s === ch)) return;
+            if (selected.length >= 2) return;
+            selected.push(ch);
+            cardEl.classList.add('card-select-border');
+            btnEl.textContent = 'Selecionado';
+            btnEl.disabled = true;
+            updateSelectionBoxes();
+        }
+
+        const racePanel = document.getElementById('race-panel');
+
+        startBtn.addEventListener('click', async () => {
+            if (selected.length < 2) return;
+            clearRaceLog();
+            racePanel.style.display = 'block';
+            const player1 = Object.assign(Object.create(Object.getPrototypeOf(selected[0])), JSON.parse(JSON.stringify(selected[0])));
+            const player2 = Object.assign(Object.create(Object.getPrototypeOf(selected[1])), JSON.parse(JSON.stringify(selected[1])));
+            await playRaceEngine(player1, player2);
+            await declareWinner(player1, player2);
+        });
+
+        renderCards();
+        updateSelectionBoxes();
+    </script>
+</body>
+</html>
