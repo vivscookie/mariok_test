@@ -18,18 +18,18 @@ const DonkeyKong = new Char("Donkey Kong", 2, 2, 5, 0, "assets/dk.gif");
 
 const personagens = [Mario, Luigi, Peach, Yoshi, Bowser, DonkeyKong];
 
-if (typeof window !== 'undefined') {
-  window.personagens = personagens;
+
+window.personagens = personagens;
 window.onRaceUpdate = null;
-}
+
 
 
 function logEvent(message) {
     console.log(message);
     if (typeof window !== 'undefined' && typeof window.onRaceUpdate === 'function') {
-        if (typeof window !== 'undefined') {
+
         window.onRaceUpdate(message);
-        }
+
     }
 }
 
@@ -60,7 +60,7 @@ async function playRaceEngine(character1, character2) {
         logEvent(`🏁 ${round}ª volta`);
         let block = await getRandomBlock();
         logEvent(`Bloco: ${block}`);
-        
+
         let diceResult1 = await rollDice();
         let diceResult2 = await rollDice();
 
@@ -116,7 +116,7 @@ async function playRaceEngine(character1, character2) {
 async function declareWinner(character1, character2) {
     logEvent("🏁 Fim da corrida 🏁");
     logEvent("Resultado:");
-    
+
     if (character1.PONTOS > character2.PONTOS) {
         logEvent(`${character1.NOME} venceu com ${character1.PONTOS} ponto(s) 🏆`);
     } else if (character2.PONTOS > character1.PONTOS) {
@@ -125,7 +125,6 @@ async function declareWinner(character1, character2) {
         logEvent("Empate!");
     }
 }
-if (typeof window !== 'undefined') {
+
 window.playRaceEngine = playRaceEngine;
 window.declareWinner = declareWinner;
-}
