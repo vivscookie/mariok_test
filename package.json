@@ -1,5 +1,25 @@
 {
+  "name": "mario-kart-race",
+  "version": "1.0.0",
+  "description": "Mario Kart Racing Game with AI",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "bootstrap": "^5.3.8"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "index.js",
+      "!node_modules/**"
+    ]
   }
 }
