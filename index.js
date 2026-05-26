@@ -18,13 +18,18 @@ const DonkeyKong = new Char("Donkey Kong", 2, 2, 5, 0, "assets/dk.gif");
 
 const personagens = [Mario, Luigi, Peach, Yoshi, Bowser, DonkeyKong];
 
-window.personagens = personagens;
+if (typeof window !== 'undefined') {
+  window.personagens = personagens;
 window.onRaceUpdate = null;
+}
+
 
 function logEvent(message) {
     console.log(message);
     if (typeof window !== 'undefined' && typeof window.onRaceUpdate === 'function') {
+        if (typeof window !== 'undefined') {
         window.onRaceUpdate(message);
+        }
     }
 }
 
@@ -120,6 +125,7 @@ async function declareWinner(character1, character2) {
         logEvent("Empate!");
     }
 }
-
+if (typeof window !== 'undefined') {
 window.playRaceEngine = playRaceEngine;
 window.declareWinner = declareWinner;
+}
